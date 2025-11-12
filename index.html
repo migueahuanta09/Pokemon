@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainer Hub</title>
+    <style>
+        :root {
+            --primary: #e3350d;
+            --secondary: #ffcb05;
+            --dark: #2a75bb;
+            --light: #f5f5f5;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        input, button {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--dark);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--dark);
+        }
+        
+        .error {
+            color: var(--error);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .valid {
+            border-color: var(--success);
+        }
+        
+        .invalid {
+            border-color: var(--error);
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-container input {
+            flex: 1;
+        }
+        
+        .search-container button {
+            width: auto;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .pokemon-result {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        
+        .pokemon-card {
+            display: inline-block;
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 200px;
+        }
+        
+        .pokemon-card img {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .pokemon-card h3 {
+            text-transform: capitalize;
+            margin: 0.5rem 0;
+            color: var(--dark);
+        }
+        
+        .team-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .team-member {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+        
+        .team-member.favorite {
+            background-color: #fff9c4;
+            border: 2px solid var(--secondary);
+        }
+        
+        .team-member img {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .team-member h3 {
+            text-transform: capitalize;
+            margin: 0.5rem 0;
+            color: var(--dark);
+        }
+        
+        .favorite-checkbox {
+            margin: 0.5rem 0;
+        }
+        
+        .release-btn {
+            background-color: var(--error);
+            margin-top: 0.5rem;
+        }
+        
+        .release-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .team-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Trainer Hub</h1>
+        <p>Tu centro de entrenamiento Pokémon</p>
+    </header>
+    
+    <div class="container">
+        <!-- Sección de Registro de Entrenador -->
+        <section id="trainer-registration">
+            <h2>Registro de Entrenador</h2>
+            <form id="trainer-form">
+                <div class="form-group">
+                    <label for="trainer-name">Nombre de Entrenador</label>
+                    <input type="text" id="trainer-name" name="trainer-name" required>
+                    <div class="error" id="name-error">El nombre debe tener al menos 3 caracteres</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="trainer-email">Email de Entrenador</label>
+                    <input type="email" id="trainer-email" name="trainer-email" required>
+                    <div class="error" id="email-error">Por favor ingresa un email válido</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="start-date">Fecha de Inicio de Aventura</label>
+                    <input type="date" id="start-date" name="start-date" required>
+                    <div class="error" id="date-error">La fecha no puede ser anterior a hoy</div>
+                </div>
+                
+                <button type="submit">Registrar Entrenador</button>
+            </form>
+        </section>
+        
+        <!-- Sección de Búsqueda de Pokémon -->
+        <section id="pokemon-search" class="hidden">
+            <h2>Capturar Pokémon</h2>
+            <div class="search-container">
+                <input type="text" id="pokemon-input" placeholder="Escribe el nombre de un Pokémon">
+                <button id="search-btn">Buscar</button>
+            </div>
+            
+            <div class="pokemon-result" id="pokemon-result">
+                <!-- Aquí se mostrará el resultado de la búsqueda -->
+            </div>
+        </section>
+        
+        <!-- Sección de Gestión del Equipo -->
+        <section id="team-management" class="hidden">
+            <h2>Mi Equipo Pokémon</h2>
+            <div class="team-container" id="team-container">
+                <!-- Aquí se mostrarán los Pokémon del equipo -->
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentTrainer = null;
+        
+        // Elementos del DOM
+        const trainerForm = document.getElementById('trainer-form');
+        const trainerNameInput = document.getElementById('trainer-name');
+        const trainerEmailInput = document.getElementById('trainer-email');
+        const startDateInput = document.getElementById('start-date');
+        const nameError = document.getElementById('name-error');
+        const emailError = document.getElementById('email-error');
+        const dateError = document.getElementById('date-error');
+        
+        const pokemonSearchSection = document.getElementById('pokemon-search');
+        const teamManagementSection = document.getElementById('team-management');
+        
+        const pokemonInput = document.getElementById('pokemon-input');
+        const searchBtn = document.getElementById('search-btn');
+        const pokemonResult = document.getElementById('pokemon-result');
+        const teamContainer = document.getElementById('team-container');
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fecha mínima como hoy
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.min = today;
+            
+            // Verificar si ya existe un entrenador registrado
+            checkExistingTrainer();
+            
+            // Configurar eventos
+            setupEventListeners();
+        });
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Validación en tiempo real del formulario
+            trainerNameInput.addEventListener('input', validateName);
+            trainerEmailInput.addEventListener('input', validateEmail);
+            startDateInput.addEventListener('change', validateDate);
+            
+            // Envío del formulario
+            trainerForm.addEventListener('submit', handleFormSubmit);
+            
+            // Búsqueda de Pokémon
+            searchBtn.addEventListener('click', searchPokemon);
+            pokemonInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchPokemon();
+                }
+            });
+        }
+        
+        // Verificar si ya existe un entrenador en localStorage
+        function checkExistingTrainer() {
+            const savedTrainer = localStorage.getItem('pokemonTrainer');
+            if (savedTrainer) {
+                currentTrainer = JSON.parse(savedTrainer);
+                showTrainerSections();
+                renderTeam();
+            }
+        }
+        
+        // Mostrar secciones después del registro
+        function showTrainerSections() {
+            document.getElementById('trainer-registration').classList.add('hidden');
+            pokemonSearchSection.classList.remove('hidden');
+            teamManagementSection.classList.remove('hidden');
+        }
+        
+        // Validaciones del formulario
+        function validateName() {
+            const name = trainerNameInput.value.trim();
+            const isValid = name.length >= 3;
+            
+            updateValidationUI(trainerNameInput, nameError, isValid);
+            return isValid;
+        }
+        
+        function validateEmail() {
+            const email = trainerEmailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const isValid = emailRegex.test(email);
+            
+            updateValidationUI(trainerEmailInput, emailError, isValid);
+            return isValid;
+        }
+        
+        function validateDate() {
+            const selectedDate = new Date(startDateInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const isValid = selectedDate >= today;
+            
+            updateValidationUI(startDateInput, dateError, isValid);
+            return isValid;
+        }
+        
+        function updateValidationUI(input, errorElement, isValid) {
+            if (isValid) {
+                input.classList.remove('invalid');
+                input.classList.add('valid');
+                errorElement.style.display = 'none';
+            } else {
+                input.classList.remove('valid');
+                input.classList.add('invalid');
+                errorElement.style.display = 'block';
+            }
+        }
+        
+        // Manejar envío del formulario
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+            const isDateValid = validateDate();
+            
+            if (isNameValid && isEmailValid && isDateValid) {
+                // Crear objeto entrenador
+                currentTrainer = {
+                    id: Date.now(),
+                    trainerName: trainerNameInput.value.trim(),
+                    email: trainerEmailInput.value.trim(),
+                    startDate: startDateInput.value,
+                    equipo: []
+                };
+                
+                // Guardar en localStorage
+                localStorage.setItem('pokemonTrainer', JSON.stringify(currentTrainer));
+                
+                // Mostrar secciones de búsqueda y equipo
+                showTrainerSections();
+            }
+        }
+        
+        // Buscar Pokémon en la API
+        async function searchPokemon() {
+            const pokemonName = pokemonInput.value.trim().toLowerCase();
+            
+            if (!pokemonName) {
+                showPokemonResult('Por favor, escribe el nombre de un Pokémon', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+                
+                if (!response.ok) {
+                    throw new Error('Pokémon no encontrado');
+                }
+                
+                const data = await response.json();
+                displayPokemonResult(data);
+            } catch (error) {
+                showPokemonResult('No se encontró el Pokémon', true);
+            }
+        }
+        
+        // Mostrar resultado de búsqueda de Pokémon
+        function displayPokemonResult(pokemon) {
+            const pokemonCard = `
+                <div class="pokemon-card">
+                    <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
+                    <h3>${pokemon.name}</h3>
+                    <button id="add-to-team">Añadir al Equipo</button>
+                </div>
+            `;
+            
+            pokemonResult.innerHTML = pokemonCard;
+            pokemonResult.style.display = 'block';
+            
+            // Configurar evento para añadir al equipo
+            document.getElementById('add-to-team').addEventListener('click', function() {
+                addPokemonToTeam(pokemon);
+            });
+        }
+        
+        // Mostrar mensaje de error en la búsqueda
+        function showPokemonResult(message, isError = false) {
+            pokemonResult.innerHTML = `<p style="color: ${isError ? 'var(--error)' : 'inherit'}">${message}</p>`;
+            pokemonResult.style.display = 'block';
+        }
+        
+        // Añadir Pokémon al equipo
+        function addPokemonToTeam(pokemon) {
+            // Verificar si el equipo ya tiene 6 Pokémon
+            if (currentTrainer.equipo.length >= 6) {
+                alert('Tu equipo ya está completo (máximo 6 Pokémon)');
+                return;
+            }
+            
+            // Verificar si el Pokémon ya está en el equipo
+            const isAlreadyInTeam = currentTrainer.equipo.some(p => p.id === pokemon.id);
+            if (isAlreadyInTeam) {
+                alert('Este Pokémon ya está en tu equipo');
+                return;
+            }
+            
+            // Crear objeto Pokémon para el equipo
+            const teamPokemon = {
+                id: pokemon.id,
+                nombre: pokemon.name,
+                sprite: pokemon.sprites.front_default,
+                favorito: false
+            };
+            
+            // Añadir al equipo
+            currentTrainer.equipo.push(teamPokemon);
+            
+            // Actualizar localStorage
+            localStorage.setItem('pokemonTrainer', JSON.stringify(currentTrainer));
+            
+            // Actualizar vista del equipo
+            renderTeam();
+            
+            // Mostrar mensaje de éxito
+            showPokemonResult(`¡${pokemon.name} añadido al equipo!`);
+        }
+        
+        // Renderizar el equipo
+        function renderTeam() {
+            if (!currentTrainer || currentTrainer.equipo.length === 0) {
+                teamContainer.innerHTML = '<p>Tu equipo está vacío. ¡Busca y añade algunos Pokémon!</p>';
+                return;
+            }
+            
+            teamContainer.innerHTML = currentTrainer.equipo.map(pokemon => `
+                <div class="team-member ${pokemon.favorito ? 'favorite' : ''}">
+                    <img src="${pokemon.sprite}" alt="${pokemon.nombre}">
+                    <h3>${pokemon.nombre}</h3>
+                    <div class="favorite-checkbox">
+                        <label>
+                            <input type="checkbox" ${pokemon.favorito ? 'checked' : ''} 
+                                   data-id="${pokemon.id}"> Favorito
+                        </label>
+                    </div>
+                    <button class="release-btn" data-id="${pokemon.id}">Liberar</button>
+                </div>
+            `).join('');
+            
+            // Configurar eventos para favoritos y liberar
+            teamContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', toggleFavorite);
+            });
+            
+            teamContainer.querySelectorAll('.release-btn').forEach(button => {
+                button.addEventListener('click', releasePokemon);
+            });
+        }
+        
+        // Alternar estado de favorito
+        function toggleFavorite(e) {
+            const pokemonId = parseInt(e.target.dataset.id);
+            const pokemon = currentTrainer.equipo.find(p => p.id === pokemonId);
+            
+            if (pokemon) {
+                pokemon.favorito = e.target.checked;
+                localStorage.setItem('pokemonTrainer', JSON.stringify(currentTrainer));
+                renderTeam();
+            }
+        }
+        
+        // Liberar Pokémon del equipo
+        function releasePokemon(e) {
+            const pokemonId = parseInt(e.target.dataset.id);
+            const pokemonName = currentTrainer.equipo.find(p => p.id === pokemonId).nombre;
+            
+            if (confirm(`¿Estás seguro de que quieres liberar a ${pokemonName}?`)) {
+                currentTrainer.equipo = currentTrainer.equipo.filter(p => p.id !== pokemonId);
+                localStorage.setItem('pokemonTrainer', JSON.stringify(currentTrainer));
+                renderTeam();
+            }
+        }
+    </script>
+</body>
+</html>
